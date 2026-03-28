@@ -2,3 +2,4 @@ Django
 gunicorn
 whitenoise
 dj-database-url
+django-crispy-forms

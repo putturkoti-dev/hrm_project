@@ -1,0 +1,142 @@
+{% extends "hrm_app/base.html" %}
+{% block content %}
+
+<!-- PROFILE PHOTO -->
+{% if employee.profile_photo %}
+  <img src="{{ employee.profile_photo.url }}" width="120" class="rounded mb-2">
+{% else %}
+  <img src="https://via.placeholder.com/120" width="120" class="rounded mb-2">
+{% endif %}
+
+<br>
+<a href="{% url 'hrm:employee_photo_edit' employee.id %}"
+   class="btn btn-sm btn-outline-primary mb-3">
+   Change Photo
+</a>
+
+<h3>{{ employee.user.get_full_name }}</h3>
+<p class="text-muted">Employee ID: {{ employee.employee_id }}</p>
+{% if request.user.employee_profile.role == "HR" %}
+<div class="mb-3">
+
+
+    <a href="{% url 'hrm:employee_reporting_edit' employee.id %}" class="btn btn-outline-secondary btn-sm">
+        Reporting Manager
+    </a>
+
+    <a href="{% url 'hrm:employee_documents' employee.id %}" class="btn btn-success btn-sm">
+        Documents
+    </a>
+</div>
+{% endif %}
+
+
+<hr>
+
+<ul class="nav nav-tabs mt-3">
+  <li class="nav-item">
+    <a class="nav-link active" data-bs-toggle="tab" href="#personal">Personal</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#job">Job</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#contact">Contact</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#bank_details">Bank Details</a>
+  </li>
+   <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#identity">Identity</a>
+  </li>
+</ul>
+
+<div class="tab-content mt-3">
+
+<!-- ================= PERSONAL ================= -->
+<div class="tab-pane fade show active" id="personal">
+<table class="table">
+<tr><th>Name</th><td>{{ employee.user.get_full_name }}</td></tr>
+<tr><th>Gender</th><td>{{ employee.get_gender_display }}</td></tr>
+<tr><th>Date of Birth</th><td>{{ employee.date_of_birth }}</td></tr>
+<tr><th>Blood Group</th><td>{{ employee.get_blood_group_display }}</td></tr>
+<tr><th>Marital Status</th><td>{{ employee.get_marital_status_display }}</td></tr>
+
+</table>
+{% if request.user.employee_profile.role == "HR" %}
+<a href="{% url 'hrm:employee_personal' employee.id %}" class="btn btn-primary btn-sm">
+        Edit Personal
+    </a>
+{% endif %}
+</div>
+
+<!-- ================= JOB ================= -->
+<div class="tab-pane fade" id="job">
+<table class="table">
+<tr><th>Department</th><td>{{ employee.department }}</td></tr>
+<tr><th>Job Title</th><td>{{ employee.job_title }}</td></tr>
+<tr><th>Employment Type</th><td>{{ employee.get_employment_type_display }}</td></tr>
+<tr><th>Work Location</th><td>{{ employee.work_location }}</td></tr>
+<tr><th>Date Joined</th><td>{{ employee.date_joined }}</td></tr>
+<tr><th>Role</th><td>{{ employee.get_role_display }}</td></tr>
+<tr><th>Reporting Manager</th><td>{{ employee.reporting_manager|default:"—" }}</td></tr>
+</table>
+{% if request.user.employee_profile.role == "HR" %}
+<a href="{% url 'hrm:employee_job_edit' employee.id %}" class="btn btn-secondary btn-sm">
+        Edit Job
+    </a>
+{% endif %}
+</div>
+
+<!-- ================= CONTACT ================= -->
+<div class="tab-pane fade" id="contact">
+<table class="table">
+<tr><th>Email</th><td>{{ employee.user.email }}</td></tr>
+<tr><th>Phone</th><td>{{ employee.phone }}</td></tr>
+<tr><th>Alternate Phone</th><td>{{ employee.alternate_phone }}</td></tr>
+<tr><th>Address</th><td>{{ employee.address }}</td></tr>
+<tr><th>City</th><td>{{ employee.city }}</td></tr>
+<tr><th>State</th><td>{{ employee.state }}</td></tr>
+<tr><th>Pincode</th><td>{{ employee.pincode }}</td></tr>
+<tr>
+  <th>Emergency Contact</th>
+  <td>{{ employee.emergency_contact_name }} ({{ employee.emergency_contact_number }})</td>
+</tr>
+</table>
+{% if request.user.employee_profile.role == "HR" %}
+<a href="{% url 'hrm:employee_contact_edit' employee.id %}" class="btn btn-info btn-sm">
+        Edit Contact
+    </a>
+{% endif %}
+</div>
+
+<!-- ================= BANK ================= -->
+<div class="tab-pane fade" id="bank_details">
+<table class="table">
+<tr><th>Salary</th><td>{{ employee.salary }}</td></tr>
+<tr><th>Bank Name</th><td>{{ employee.bank_name }}</td></tr>
+<tr><th>Account Number</th><td>{{ employee.account_number }}</td></tr>
+<tr><th>IFSC Code</th><td>{{ employee.ifsc_code }}</td></tr>
+</table>
+{% if request.user.employee_profile.role == "HR" %}
+<a href="{% url 'hrm:employee_bank_edit' employee.id %}" class="btn btn-warning btn-sm">
+        Edit Bank Details
+    </a>
+{% endif %}
+</div>
+<!-- ================= IDENTITY ================= -->
+<div class="tab-pane fade" id="identity">
+<table class="table">
+<tr><th>Aadhar</th><td>{{ employee.aadhar_number }}</td></tr>
+<tr><th>PAN</th><td>{{ employee.pan_number }}</td></tr>
+</table>
+{% if request.user.employee_profile.role == "HR" %}
+<a href="{% url 'hrm:employee_identity_edit' employee.id %}" class="btn btn-dark btn-sm">
+        Edit Identity
+    </a>
+    </a>
+{% endif %}
+</div>
+</div>
+
+{% endblock %}

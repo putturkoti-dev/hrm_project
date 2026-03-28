@@ -1,0 +1,11 @@
+{% extends "hrm_app/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h2>Company Signup</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <button class="btn btn-primary">Create Company</button>
+</form>
+{% endblock %}

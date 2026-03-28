@@ -1,0 +1,68 @@
+{% extends "hrm_app/base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center">
+  <h2>Leaves</h2>
+  <a class="btn btn-primary" href="{% url 'hrm:leave_apply' %}">Apply Leave</a>
+</div>
+
+<table class="table mt-3">
+<thead>
+<tr>
+  <th>Employee</th>
+  <th>Start</th>
+  <th>End</th>
+  <th>Status</th>
+
+  {% if request.user.employee_profile.role == "HR" %}
+    <th>Action</th>
+  {% endif %}
+</tr>
+</thead>
+
+<tbody>
+{% for l in leaves %}
+<tr>
+
+  <!-- EMPLOYEE NAME -->
+  <td>
+    {{ l.employee.user.get_full_name|default:l.employee.user.username }}
+  </td>
+
+  <td>{{ l.start_date }}</td>
+  <td>{{ l.end_date }}</td>
+
+  <!-- STATUS -->
+  <td>
+    {% if l.status == "P" %}
+      <span class="badge bg-warning text-dark">Pending</span>
+    {% elif l.status == "A" %}
+      <span class="badge bg-success">Approved</span>
+    {% elif l.status == "R" %}
+      <span class="badge bg-danger">Rejected</span>
+    {% endif %}
+  </td>
+
+  <!-- HR ACTIONS ONLY -->
+  {% if request.user.employee_profile.role == "HR" %}
+  <td>
+    {% if l.status == "P" %}
+      <a href="{% url 'hrm:leave_approve' l.id %}" class="btn btn-success btn-sm">Approve</a>
+      <a href="{% url 'hrm:leave_reject' l.id %}" class="btn btn-danger btn-sm">Reject</a>
+    {% else %}
+      —
+    {% endif %}
+  </td>
+  {% endif %}
+
+</tr>
+
+{% empty %}
+<tr>
+  <td colspan="5" class="text-center">No leave requests.</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock %}

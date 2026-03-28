@@ -1,0 +1,29 @@
+{% extends "hrm_app/base.html" %}
+{% block content %}
+
+<h2>Attendance History</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in records %}
+        <tr>
+            <td>{{ r.date }}</td>
+            <td>{{ r.check_in|default:"-" }}</td>
+            <td>{{ r.check_out|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No attendance records found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

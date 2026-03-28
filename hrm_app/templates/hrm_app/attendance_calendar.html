@@ -1,0 +1,262 @@
+{% extends "hrm_app/base.html" %}
+{% load custom_tags %}
+
+{% block content %}
+
+<style>
+
+/* ===== MAIN CARD ===== */
+.main-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+/* ===== HEADER ===== */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-title {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+/* ===== TABLE GRID ===== */
+.calendar-table {
+    border-collapse: separate;
+    border-spacing: 8px;
+}
+
+.calendar-table td {
+    height: 100px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    vertical-align: top;
+    position: relative;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.calendar-table td:hover {
+    background: #f4f7ff;
+    transform: translateY(-2px);
+}
+
+/* ===== DAY NUMBER ===== */
+.day {
+    font-size: 13px;
+    font-weight: 600;
+    position: absolute;
+    top: 8px;
+    left: 10px;
+}
+
+/* ===== EVENT STYLE (GOOGLE STYLE) ===== */
+.event {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 4px 6px;
+    font-size: 11px;
+    border-left: 4px solid;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+/* COLORS */
+.present-border { border-color: #28a745; }
+.absent-border { border-color: #dc3545; }
+.leave-border { border-color: #ffc107; }
+.holiday-border { border-color: #17a2b8; }
+
+/* ===== TODAY ===== */
+.today {
+    border: 2px solid #0d6efd;
+}
+
+/* ===== SIDE PANEL ===== */
+.side-panel {
+    position: fixed;
+    right: -350px;
+    top: 0;
+    width: 350px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.side-panel.open {
+    right: 0;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ===== LEAVE CARDS ===== */
+.leave-card {
+    margin-top: 25px;
+}
+
+.leave-box {
+    padding: 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f8f9fa, #eef2f7);
+    text-align: center;
+    transition: 0.3s;
+}
+
+.leave-box:hover {
+    transform: translateY(-6px);
+}
+
+.leave-title {
+    font-size: 13px;
+    color: #888;
+}
+
+.leave-value {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+</style>
+
+<div class="main-card">
+
+    <!-- HEADER -->
+    <div class="calendar-header">
+        <a class="btn btn-light btn-sm"
+           href="?month={{ prev_month.month }}&year={{ prev_month.year }}">←</a>
+
+        <div class="calendar-title">
+            📅 {{ month_name }} {{ year }}
+        </div>
+
+        <a class="btn btn-light btn-sm"
+           href="?month={{ next_month.month }}&year={{ next_month.year }}">→</a>
+    </div>
+
+    <!-- CALENDAR -->
+    <table class="table calendar-table">
+
+        <thead class="text-muted text-center">
+        <tr>
+            <th>Mon</th><th>Tue</th><th>Wed</th>
+            <th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for week in calendar %}
+        <tr>
+
+            {% for day in week %}
+            {% if day == 0 %}
+                <td></td>
+            {% else %}
+                <td class="{% if day == today.day and month == today.month and year == today.year %}today{% endif %}"
+                    onclick="openPanel({{ day }})">
+
+                    <div class="day">{{ day }}</div>
+
+                    {% if day in attendance %}
+                        {% if attendance|get_item:day == "Present" %}
+                            <div class="event present-border">Present</div>
+
+                        {% elif attendance|get_item:day == "Absent" %}
+                            <div class="event absent-border">Absent</div>
+
+                        {% elif attendance|get_item:day == "Leave" %}
+                            <div class="event leave-border">Leave</div>
+
+                        {% elif attendance|get_item:day == "Holiday" %}
+                            <div class="event holiday-border">Holiday</div>
+                        {% endif %}
+                    {% endif %}
+
+                </td>
+            {% endif %}
+            {% endfor %}
+
+        </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- SIDE PANEL -->
+<div id="sidePanel" class="side-panel">
+
+    <div class="panel-header">
+        <h5 id="panelDate"></h5>
+        <button onclick="closePanel()" class="btn-close"></button>
+    </div>
+
+    <hr>
+
+    <p id="panelStatus"></p>
+
+    <a id="applyLeaveBtn" class="btn btn-primary w-100 mt-3">
+        Apply Leave
+    </a>
+
+</div>
+
+<!-- LEAVE CARDS -->
+<div class="row leave-card">
+
+    {% for leave in leave_balances %}
+    <div class="col-md-4">
+        <div class="leave-box">
+            <div class="leave-title">{{ leave.get_leave_type_display }}</div>
+            <div class="leave-value text-primary">{{ leave.remaining_days }}</div>
+            <small class="text-muted">
+                Used {{ leave.used_days }} / {{ leave.total_days }}
+            </small>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+<!-- JS -->
+<script>
+let attendanceData = {{ attendance|safe }};
+
+function openPanel(day) {
+
+    let status = attendanceData[day] || "No Data";
+
+    document.getElementById("panelDate").innerText =
+        day + " {{ month_name }} {{ year }}";
+
+    document.getElementById("panelStatus").innerText =
+        "Status: " + status;
+
+    document.getElementById("applyLeaveBtn").href =
+        "/leaves/apply/?date={{ year }}-{{ month }}-" + day;
+
+    document.getElementById("sidePanel").classList.add("open");
+}
+
+function closePanel() {
+    document.getElementById("sidePanel").classList.remove("open");
+}
+</script>
+
+{% endblock %}

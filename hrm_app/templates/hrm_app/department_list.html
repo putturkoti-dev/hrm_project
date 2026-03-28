@@ -1,0 +1,12 @@
+{% extends "hrm_app/base.html" %}
+{% block content %}
+<h2>Departments</h2>
+<a class="btn btn-primary" href="{% url 'hrm:department_create' %}">Create Department</a>
+<ul class="list-group mt-3">
+  {% for d in departments %}
+    <li class="list-group-item">{{ d.name }} - {{ d.description|default:"-" }}</li>
+  {% empty %}
+    <li class="list-group-item">No departments.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

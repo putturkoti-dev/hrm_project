@@ -1,0 +1,44 @@
+{% extends "hrm_app/base.html" %}
+{% block content %}
+
+<h3>Personal Details</h3>
+<p class="text-muted">
+  {{ employee.user.get_full_name }} ({{ employee.employee_id }})
+</p>
+
+<hr>
+
+<div class="form-container">
+
+<form method="post">
+{% csrf_token %}
+
+<div class="form-row">
+<label>Gender</label>
+{{ form.gender }}
+</div>
+
+<div class="form-row">
+<label>Date of Birth</label>
+{{ form.date_of_birth }}
+</div>
+
+<div class="form-row">
+<label>Blood Group</label>
+{{ form.blood_group }}
+</div>
+
+<div class="form-row">
+<label>Marital Status</label>
+{{ form.marital_status }}
+</div>
+
+<div class="form-actions">
+<button class="btn btn-success">Save</button>
+<a href="{% url 'hrm:employee_profile' employee.id %}" class="btn btn-secondary">Back</a>
+</div>
+
+</form>
+</div>
+
+{% endblock %}

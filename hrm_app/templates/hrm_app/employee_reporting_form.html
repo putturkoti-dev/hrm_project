@@ -1,0 +1,18 @@
+{% extends "hrm_app/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<h4>Edit Reporting Manager</h4>
+<p>{{ employee.user.get_full_name }}</p>
+<hr>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form|crispy }}
+
+  <button class="btn btn-success">Save</button>
+  <a href="{% url 'hrm:employee_profile' employee.id %}"
+     class="btn btn-secondary">Cancel</a>
+</form>
+
+{% endblock %}

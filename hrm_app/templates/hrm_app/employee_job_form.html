@@ -1,0 +1,60 @@
+{% extends "hrm_app/base.html" %}
+{% block content %}
+
+<h3>Edit Job Details</h3>
+<p class="text-muted">
+  {{ employee.user.get_full_name }} ({{ employee.employee_id }})
+</p>
+
+<hr>
+
+<div class="form-container">
+
+<form method="post" onsubmit="submitForm(event, this)">
+{% csrf_token %}
+
+<div class="form-row">
+<label>Department</label>
+{{ form.department }}
+</div>
+
+<div class="form-row">
+<label>Job Title</label>
+{{ form.job_title }}
+</div>
+
+<div class="form-row">
+<label>Role</label>
+{{ form.role }}
+</div>
+
+<div class="form-row">
+<label>Employment Type</label>
+{{ form.employment_type }}
+</div>
+
+<div class="form-row">
+<label>Work Location</label>
+{{ form.work_location }}
+</div>
+
+<div class="form-row">
+<label>Date Joined</label>
+{{ form.date_joined }}
+</div>
+
+<div class="form-actions">
+<button class="btn btn-success">Save</button>
+
+<a href="{% url 'hrm:employee_profile' employee.id %}" class="btn btn-secondary">
+Cancel
+</a>
+
+</div>
+
+</form>
+
+</div>
+</div>
+
+{% endblock %}

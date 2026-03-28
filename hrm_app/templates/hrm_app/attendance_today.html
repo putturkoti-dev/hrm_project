@@ -1,0 +1,39 @@
+{% extends "hrm_app/base.html" %}
+
+{% block content %}
+<h2>Attendance — {{ today }}</h2>
+
+{% if attendance %}
+  <p><strong>Check in:</strong>
+     {{ attendance.check_in|default:"Not yet" }}
+  </p>
+
+  <p><strong>Check out:</strong>
+     {{ attendance.check_out|default:"Not yet" }}
+  </p>
+{% else %}
+  <p>You have not clocked in today.</p>
+{% endif %}
+
+<hr>
+
+{% if not attendance.check_in %}
+<form method="post" action="{% url 'hrm:clock_in' %}">
+  {% csrf_token %}
+  <button class="btn btn-success">Clock In</button>
+</form>
+{% endif %}
+
+{% if attendance.check_in and not attendance.check_out %}
+<form method="post" action="{% url 'hrm:clock_out' %}" style="margin-top:8px;">
+  {% csrf_token %}
+  <button class="btn btn-danger">Clock Out</button>
+</form>
+{% endif %}
+
+<br>
+<a href="{% url 'hrm:attendance_history' %}" class="btn btn-link">
+  View Attendance History
+</a>
+
+{% endblock %}

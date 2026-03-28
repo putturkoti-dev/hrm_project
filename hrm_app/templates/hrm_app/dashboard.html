@@ -1,0 +1,230 @@
+{% extends "hrm_app/base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">HRM Dashboard</h2>
+
+<!-- TOP STATS -->
+<div class="row text-center g-3">
+
+  <div class="col-md-2">
+    <div class="card shadow-sm border-primary h-100">
+      <div class="card-body">
+        <h6>Total Employees</h6>
+        <h2 class="text-primary">{{ total_employees }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <div class="card shadow-sm border-success">
+      <div class="card-body">
+        <h6>Present</h6>
+        <h2 class="text-success">{{ present }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <div class="card shadow-sm border-danger">
+      <div class="card-body">
+        <h6>Absent</h6>
+        <h2 class="text-danger">{{ absent }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <div class="card shadow-sm border-warning">
+      <div class="card-body">
+        <h6>Approved Leaves</h6>
+        <h2 class="text-warning">{{ leaves }}</h2>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="col-md-2">
+    <div class="card shadow-sm border-warning h-100">
+      <div class="card-body">
+        <h6>Pending Leaves</h6>
+        <h2 class="text-warning">{{ pending_leaves }}</h2>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="col-md-2">
+    <div class="card border-danger shadow-sm">
+      <div class="card-body">
+        <h6>Late Check-Ins</h6>
+        <h2 class="text-danger">{{ late_checkins }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+
+
+<!-- CHARTS -->
+<div class="row mt-4">
+
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3">
+      <h5>Today's Attendance</h5>
+      <canvas id="attendanceChart"></canvas>
+    </div>
+  </div>
+
+
+
+  <div class="col-md-4">
+    <div class="card shadow-sm p-3">
+      <h5>Monthly Attendance Chart</h5>
+      <canvas id="monthlyAttendanceChart"></canvas>
+    </div>
+  </div>
+
+
+  <div class="col-md-4">
+    <div class="card shadow-sm p-3">
+      <h5>Employee Growth</h5>
+      <canvas id="employeeGrowthChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<hr>
+  <div class="col-md-4">
+    <div class="card shadow-sm p-3">
+      <h5>Payroll Overview</h5>
+      <canvas id="payrollChart"></canvas>
+    </div>
+  </div>
+
+
+
+
+<hr>
+
+<!-- Upcoming Holidays -->
+<h4>Upcoming Holidays</h4>
+
+<ul class="list-group shadow-sm">
+
+{% for holiday in upcoming_holidays %}
+
+<li class="list-group-item d-flex justify-content-between">
+    {{ holiday.name }}
+    <span class="badge bg-primary">{{ holiday.date }}</span>
+</li>
+
+{% empty %}
+
+<li class="list-group-item">No upcoming holidays</li>
+
+{% endfor %}
+
+</ul>
+
+<hr>
+
+
+<!-- Chart JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+new Chart(document.getElementById('attendanceChart'), {
+
+type: 'doughnut',
+
+data: {
+labels: ['Present','Absent'],
+
+datasets: [{
+data: [{{ present|default:0 }}, {{ absent|default:0 }}],
+backgroundColor: ['#28a745','#dc3545']
+}]
+},
+
+options:{
+responsive:true,
+plugins:{
+legend:{position:'bottom'}
+}
+}
+
+});
+
+
+new Chart(document.getElementById('payrollChart'), {
+
+type: 'bar',
+
+data: {
+
+labels: ['Total Payroll'],
+
+datasets: [{
+label: 'Amount',
+data: [{{ total_payroll }}],
+backgroundColor: '#007bff'
+}]
+
+},
+
+options:{
+responsive:true,
+plugins:{
+legend:{display:false}
+}
+}
+
+});
+
+
+new Chart(document.getElementById('monthlyAttendanceChart'), {
+
+type: 'line',
+
+data: {
+
+labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+
+datasets:[{
+label:'Attendance',
+data: {{ monthly_attendance|safe }},
+borderColor:'#007bff',
+fill:false
+}]
+
+}
+
+});
+
+
+new Chart(document.getElementById('employeeGrowthChart'), {
+
+type: 'bar',
+
+data: {
+
+labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+
+datasets:[{
+label:'New Employees',
+data: {{ employee_growth|safe }},
+backgroundColor:'#28a745'
+}]
+
+}
+
+});
+
+</script>
+
+{% endblock %}

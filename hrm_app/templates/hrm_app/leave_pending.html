@@ -1,0 +1,27 @@
+{% extends "hrm_app/base.html" %}
+{% block content %}
+
+<h2>Pending Leave Requests</h2>
+
+<table class="table table-bordered">
+<tr>
+  <th>Employee</th>
+  <th>Dates</th>
+  <th>Reason</th>
+  <th>Action</th>
+</tr>
+
+{% for leave in leaves %}
+<tr>
+  <td>{{ leave.employee.user.get_full_name }}</td>
+  <td>{{ leave.start_date }} → {{ leave.end_date }}</td>
+  <td>{{ leave.reason }}</td>
+  <td>
+    <a href="{% url 'hrm:leave_approve' leave.id %}" class="btn btn-success btn-sm">Approve</a>
+    <a href="{% url 'hrm:leave_reject' leave.id %}" class="btn btn-danger btn-sm">Reject</a>
+  </td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

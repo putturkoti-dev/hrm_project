@@ -4,3 +4,4 @@ whitenoise
 dj-database-url
 django-crispy-forms
 crispy-bootstrap5
+reportlab

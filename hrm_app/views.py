@@ -111,14 +111,26 @@ def company_signup(request):
 # DASHBOARD
 # ---------------------------------------------------
 import calendar
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+import datetime
+
 @login_required
 def dashboard(request):
-    employee = request.user.employee_profile
+
+    # ✅ SAFE: handle missing profile
+    employee = getattr(request.user, "employee_profile", None)
+
+    if not employee:
+        return redirect("signup")   # or show message page
+
     company = employee.company
 
     total_employees = Employee.objects.filter(company=company).count()
 
-    today = datetime.date.today()
+    today = timezone.localdate()
+
     today_attendance = Attendance.objects.filter(
         employee__company=company,
         date=today
@@ -132,52 +144,44 @@ def dashboard(request):
     total_payroll = Payroll.objects.filter(company=company)\
         .aggregate(total=Sum("net_salary"))["total"] or 0
 
-    from django.utils import timezone
-
-    today = timezone.localdate()
-
-    # Present (unique employees for today)
+    # Present
     present = Attendance.objects.filter(
         employee__company=company,
         date=today,
         check_in__isnull=False
     ).values('employee').distinct().count()
 
-    # Absent (correct calculation)
     absent = total_employees - present
 
     leaves = LeaveRequest.objects.filter(
         company=company,
         status="A"
     ).count()
-    current_year = datetime.date.today().year
 
-    monthly_attendance = []
+    current_year = today.year
 
-    for month in range(1, 13):
-        count = Attendance.objects.filter(
+    monthly_attendance = [
+        Attendance.objects.filter(
             employee__company=company,
             date__year=current_year,
             date__month=month,
             check_in__isnull=False
         ).count()
-
-        monthly_attendance.append(count)
+        for month in range(1, 13)
+    ]
 
     upcoming_holidays = Holiday.objects.filter(
-        date__gte=datetime.date.today()
+        date__gte=today
     ).order_by("date")[:5]
 
-    employee_growth = []
-
-    for month in range(1, 13):
-        count = Employee.objects.filter(
+    employee_growth = [
+        Employee.objects.filter(
             company=company,
             date_joined__year=current_year,
             date_joined__month=month
         ).count()
-
-        employee_growth.append(count)
+        for month in range(1, 13)
+    ]
 
     late_checkins = Attendance.objects.filter(
         employee__company=company,
@@ -186,7 +190,6 @@ def dashboard(request):
     ).count()
 
     leave_balances = LeaveBalance.objects.filter(employee=employee)
-
 
     return render(request, "hrm_app/dashboard.html", {
         "total_employees": total_employees,
